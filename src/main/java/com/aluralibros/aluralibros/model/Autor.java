@@ -1,0 +1,78 @@
+package com.aluralibros.aluralibros.model;
+
+import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class Autor {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    private String nombre;
+    private Integer ano_nacimiento;
+    private Integer ano_muerte;
+    @OneToMany(mappedBy = "autor", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    private List<Libros> libros = new ArrayList<>();
+
+    public Autor(){}
+
+    public Autor(AutorRecord autorRecord) {
+        //this.id = autorRecord.id();
+        this.nombre = autorRecord.nombre();
+        this.ano_nacimiento = autorRecord.ano_nacimiento();
+        this.ano_muerte = autorRecord.ano_muerte();
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
+    }
+
+    public Integer getAno_nacimiento() {
+        return ano_nacimiento;
+    }
+
+    public void setAno_nacimiento(Integer ano_nacimiento) {
+        this.ano_nacimiento = ano_nacimiento;
+    }
+
+    public Integer getAno_muerte() {
+        return ano_muerte;
+    }
+
+    public void setAno_muerte(Integer ano_muerte) {
+        this.ano_muerte = ano_muerte;
+    }
+
+    public List<Libros> getLibros() {
+        return libros;
+    }
+
+    public void setLibros(List<Libros> libros) {
+        this.libros = libros;
+    }
+
+    @Override
+    public String toString() {
+        return "Autor{" +
+                "id=" + id +
+                ", nombre='" + nombre + '\'' +
+                ", ano_nacimiento=" + ano_nacimiento +
+                ", ano_muerte=" + ano_muerte +
+                ", libros=" + libros +
+                '}';
+    }
+}
