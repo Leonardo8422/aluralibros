@@ -6,10 +6,10 @@ public class MostrarMenu {
         opcionDobleLinea();
         System.out.println("""
                           
-               1 - Registrar libro en base de datos
-               2 - Mostrar libros registrados
-               3 - Mostrar lista de autores registrados
-               4 - Mostrar autores vivos en determinado año
+               1 - Grardar Libro en Base de datos
+               2 - Presentar libros registrados
+               3 - Presentar lista de autores registrados
+               4 - Presentar autores vivos en determinado año
                5 - Buscar libro por idioma
            
                0 - Salir                               

@@ -208,7 +208,7 @@ public class Principal {
 
         try{
             Lenguaje lenguaje = Lenguaje.desdeCodigo(codigoLenguaje);
-            List<Libros> libros = libroRepositorio.findByLenguaje(lenguaje);
+            List<Libros> libros = (List<Libros>) libroRepositorio.findByLenguaje(lenguaje);
             if(libros.isEmpty()){
                 System.out.println("No se encontaron libros en el lenguaje: " + lenguaje);
             }else{

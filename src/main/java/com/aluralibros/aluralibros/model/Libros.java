@@ -2,7 +2,11 @@ package com.aluralibros.aluralibros.model;
 
 import jakarta.persistence.*;
 import java.util.List;
+import java.util.stream.Collectors;
 
+
+@Entity
+@Table(name = "libros")
 public class Libros {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -23,7 +27,7 @@ public class Libros {
     }
 
     public Libros(LibroResults libroResults) {
-        // this.id = libroResults.id();
+        //this.id = libroResults.id();
         this.titulo = libroResults.titulo();
         this.temas = libroResults.temas();
         this.lenguaje = libroResults.lenguaje().isEmpty() ? null : Lenguaje.desdeCodigo(libroResults.lenguaje().get(0).toUpperCase());

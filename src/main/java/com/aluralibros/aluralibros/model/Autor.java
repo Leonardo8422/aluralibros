@@ -1,11 +1,13 @@
 package com.aluralibros.aluralibros.model;
 
 import jakarta.persistence.*;
-import org.springframework.data.annotation.Id;
-
+//import org.springframework.data.annotation.Id;
 import java.util.ArrayList;
 import java.util.List;
 
+
+@Entity
+@Table(name = "autores")
 public class Autor {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,7 +20,7 @@ public class Autor {
 
     public Autor(){}
 
-    public Autor(AutorRecord autorRecord) {
+    public Autor(DatosAutores autorRecord) {
         //this.id = autorRecord.id();
         this.nombre = autorRecord.nombre();
         this.ano_nacimiento = autorRecord.ano_nacimiento();
