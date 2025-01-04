@@ -10,5 +10,6 @@ public record DatosLibros(
         @JsonAlias("next") String pag_siguiente,
         @JsonAlias("previous") String pag_anterior,
         @JsonAlias("results") List<LibroResults> libro
-) {
+)
+{
 }

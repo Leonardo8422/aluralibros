@@ -28,6 +28,6 @@ public class AluralibrosApplication implements CommandLineRunner {
 		Principal principal = new Principal(libroRepositorio, autorRepositorio);
 		principal.mostarEnApp();
 
-	}	
+	}
 
 }

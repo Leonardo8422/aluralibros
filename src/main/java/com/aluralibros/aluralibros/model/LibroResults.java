@@ -2,7 +2,7 @@ package com.aluralibros.aluralibros.model;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import org.hibernate.mapping.List;
+import java.util.List;
 
 import java.util.Collections;
 
@@ -10,7 +10,7 @@ import java.util.Collections;
 public record LibroResults(
         //@JsonAlias("id") Long id,
         @JsonAlias("title") String titulo,
-        @JsonAlias("authors") List<AutorRecord> autor,
+        @JsonAlias("authors") List<DatosAutores> autor,
         @JsonAlias("subjects") List<String> temas,
         @JsonAlias("languages") List<String> lenguaje,
         @JsonAlias("copyright") String derechos_autor,
@@ -19,7 +19,7 @@ public record LibroResults(
 
 ){
     @Override
-    public List<AutorRecord> autor() {
+    public List<DatosAutores> autor() {
         return autor == null ? Collections.emptyList() : autor;
     }
 
@@ -32,5 +32,5 @@ public record LibroResults(
     public List<String> lenguaje() {
         return lenguaje == null ? Collections.emptyList() : lenguaje;
     }
-) {
+
 }

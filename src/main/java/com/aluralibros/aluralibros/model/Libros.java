@@ -1,7 +1,7 @@
 package com.aluralibros.aluralibros.model;
 
 import jakarta.persistence.*;
-import org.hibernate.mapping.List;
+import java.util.List;
 
 public class Libros {
     @Id

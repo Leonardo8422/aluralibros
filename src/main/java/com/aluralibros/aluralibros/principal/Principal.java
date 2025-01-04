@@ -1,65 +1,236 @@
 package com.aluralibros.aluralibros.principal;
 
+import com.aluralibros.aluralibros.dto.AutorDTO;
+import com.aluralibros.aluralibros.menusolicitudes.MostrarMenu;
+import com.aluralibros.aluralibros.model.Autor;
 import com.aluralibros.aluralibros.model.DatosLibros;
+import com.aluralibros.aluralibros.model.Lenguaje;
 import com.aluralibros.aluralibros.model.Libros;
+import com.aluralibros.aluralibros.repositorio.AutorRepositorio;
+import com.aluralibros.aluralibros.repositorio.LibroRepositorio;
 import com.aluralibros.aluralibros.service.ConsumoAPI;
 import com.aluralibros.aluralibros.service.ConvierteDatos;
-
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Scanner;
+
+import java.util.*;
 
 public class Principal {
-    private Scanner teclado = new Scanner(System.in);
+
+    private final Scanner scanner = new Scanner(System.in);
+    private final String url = "https://gutendex.com/books/";
+    private final String  contenido = "{\"count\":0, \"next\":null, \"previous\":null, \"results\":[]}";
+    private ConvierteDatos convertirDatos = new ConvierteDatos();
     private ConsumoAPI consumoApi = new ConsumoAPI();
-    private final String URL_BASE = "https://gutendex.com/books?name=";
-    private ConvierteDatos conversor = new ConvierteDatos();
-    private List<DatosLibros> datosLibros = new ArrayList<>();
-    private String Datos;
+    private LibroRepositorio libroRepositorio;
+    private AutorRepositorio autorRepositorio;
+    private Autor autor = new Autor();
+    private List<Libros> libroList = new ArrayList<>();
+    public Principal(LibroRepositorio libroRepositorio, AutorRepositorio autorRepositorio){
+        this.libroRepositorio = libroRepositorio;
+        this.autorRepositorio = autorRepositorio;
+    }
+    private MostrarMenu mostrarMenu = new MostrarMenu();
 
-
-    public void muestraElMenu() {
-        var opcion = -1;
-        while (opcion != 0) {
-            var menu = """
-                    1 - Buscar libro por titulo
-                    
-                                  
-                    0 - Salir
-                    """;
-            System.out.println(menu);
-            opcion = teclado.nextInt();
-            teclado.nextLine();
-
-            switch (opcion) {
-                case 1:
-                    buscarLibro();
-                    break;
-
-
-                case 0:
-                    System.out.println("Cerrando la aplicación...");
-                    break;
-                default:
-                    System.out.println("Opción inválida");
+    public void mostarEnApp(){
+        int opcion = -1;
+        while (opcion != 0){
+            mostrarMenu.mostrarMenuOpciones();
+            try{
+                opcion = scanner.nextInt();
+                scanner.nextLine();
+                switch (opcion){
+                    case 1:
+                        obtenerDatosLibros();
+                        break;
+                    case 2:
+                        mostrarLibrosEnBaseDatos();
+                        break;
+                    case 3:
+                        mostrarAutoresRegistrados();
+                        break;
+                    case 4:
+                        mostrarAutoresVivosEnAño();
+                        break;
+                    case 5:
+                        buscarLibrosLenguaje();
+                        break;
+                    case 0:
+                        System.out.println("Cerrando aplicacion...");
+                        break;
+                    default:
+                        System.out.println("Opcion invalida");
+                        break;
+                }
+            }catch(InputMismatchException ex){
+                System.out.println("Entrada invalida. Por favor ingrese un numero del menu ");
+                scanner.nextLine();//consumir la entrada valida
             }
+        }
+    }
+
+    private void obtenerDatosLibros() {
+        mostrarMenu.opcionUnaLinea();
+        System.out.println("Escriba el nombre del libro que desea buscar...");
+        String nombreLibro = scanner.nextLine().trim();
+        String formated = nombreLibro.replace(" ", "+").toLowerCase();
+        //String contenido = "{\"count\":0, \"next\":null, \"previous\":null, \"results\":[]}";
+
+        if (nombreLibro.isEmpty()) {
+            System.out.println("Nombre del libro no puede estar vacío");
+            return;
+        }
+
+        try {
+
+            var json = consumoApi.obtenerDatos(url + "?search=" + formated);
+            if (json.contains(contenido)) {
+                System.out.println("No se encontraron resultados...");
+
+            } else {
+
+                convertirDatos.obtenerDatos(json, DatosLibros.class).libro().stream()
+                        .findFirst()
+                        .ifPresentOrElse(datos -> {
+                            String titulo = datos.titulo();
+                            String nombreAutor = datos.autor().get(0).nombre();
+                            Optional<Libros> libroExiste = libroRepositorio.findByTituloAndAutor(titulo, nombreAutor);
+
+                            if (libroExiste.isPresent()) {
+                                System.out.println("El libro ya existe con ese autor.");
+                                return;
+                            }
+
+                            autor = autorRepositorio.findByAutor(nombreAutor)
+                                    .orElseGet(() -> autorRepositorio.save(new Autor(datos.autor().get(0))));
+
+                            try {
+                                Libros libro = new Libros(datos);
+                                libro.setAutor(autor);
+
+                                // Asegurarse de que el autor y el libro se guarden de manera correcta y una sola vez.
+                                libroRepositorio.save(libro);
+                                autor.getLibros().add(libro);
+                                autorRepositorio.save(autor);
+                                mostrarMenu.opcionDobleLinea();
+                                System.out.println("Libro guardado exitosamente...\n" +
+                                        "----------------------LIBRO----------------------" + '\n' +
+                                        "Titulo              : " + cortarTitulo(libro.getTitulo()) + '\n' +
+                                        "Autor               : " + autor.getNombre() + '\n' +
+                                        "Idioma              : " + libro.getLenguaje() + '\n' +
+                                        "Numero de descargas : " + libro.getContador_descargas());
+                            } catch (Exception ex) {
+                                System.out.println("Error al guardar el libro: " + ex.getMessage());
+                            }
+                        }, () -> {
+                            System.out.println("No se encontraron registros");
+                        });
+            }
+
+        } catch (Exception ex) {
+            System.out.println("Error al obtener datos: " + ex.getMessage());
         }
 
     }
 
-    private DatosLibros getDatosLibros() {
-        System.out.println("Busca libro por titulo");
-        var nombreLibro = teclado.nextLine();
-        var json = consumoApi.obtenerDatos(URL_BASE + nombreLibro);
-        System.out.println(json);
-        DatosLibros datos = conversor.obtenerDatos(json, DatosLibros.class);
-        return datos;
+    private void mostrarLibrosEnBaseDatos() {
+        libroList = libroRepositorio.findAll();
+        libroList.stream()
+                .sorted(Comparator.comparing(Libros::getTitulo))
+                .forEach(libro -> {
+                    Autor autorLibro = libro.getAutor();
+                    System.out.println(
+                            "==============================================================================" + '\n' +
+                                    "Titulo              : " + cortarTitulo(libro.getTitulo()) + '\n' +
+                                    "Autor               : " + (autorLibro != null ? autorLibro.getNombre() : "Desconocido") + '\n' +
+                                    "Idioma              : " + libro.getLenguaje() + '\n' +
+                                    "Numero de descargas : " + libro.getContador_descargas() + '\n');
+                });
     }
-    private void buscarLibro() {
-        DatosLibros datos = getDatosLibros();
-        Libros libros = new Libros(datos);
-        //repository.save(serie);
-        datosLibros.add(datos);
-        System.out.println(datos);
+
+    public List<AutorDTO> mostrarAutoresRegistrados() {
+        List<Autor> autores = autorRepositorio.findAll();
+        List<AutorDTO> autorDTOS = new ArrayList<>();
+        for(Autor autor : autores){
+            System.out.println(
+                    "==============================================================================" + '\n' +
+                            "Autor               : " + autor.getNombre() + '\n' +
+                            "Fecha nacimiento    : " + autor.getAno_nacimiento() + '\n' +
+                            "Fecha fallecimiento : " + autor.getAno_muerte() + '\n');
+            System.out.println("Libros: ");
+            for(Libros libro : autor.getLibros()){
+                System.out.println(" - " + cortarTitulo(libro.getTitulo()));
+            }
+            AutorDTO autorDTO = new AutorDTO(autor.getNombre(), autor.getAno_nacimiento(), autor.getAno_muerte());
+            autorDTOS.add(autorDTO);
+        }
+        return autorDTOS;
+    }
+
+    private void mostrarAutoresVivosEnAño() {
+
+        mostrarMenu.opcionUnaLinea();
+        System.out.println("Ingrese al año a consultar...");
+        int anoConsulta = scanner.nextInt();
+        scanner.nextLine();
+        mostrarMenu.opcionUnaLinea();
+
+        List<Autor> autores = autorRepositorio.findAll();
+        boolean autoresEncontrados = false;
+
+        for(Autor autor : autores){
+            Integer anoNacimiento = autor.getAno_nacimiento();
+            Integer anoMuerte = autor.getAno_muerte();
+
+            if(anoNacimiento != null && anoConsulta >= anoNacimiento && (anoMuerte == null || anoConsulta <= anoMuerte)){
+                autoresEncontrados = true;
+                System.out.println("==============================================================================" + '\n' +
+                        "Nombre              : " + autor.getNombre() + '\n' +
+                        "Fecha nacimiento    : " + autor.getAno_nacimiento() + '\n' +
+                        "Fecha fallecimiento : " + (anoMuerte != null ? anoMuerte : "N/A"));
+
+                if(autor.getLibros() != null && !autor.getLibros().isEmpty()){
+                    System.out.println("Libros: ");
+                    for(Libros libro : autor.getLibros()){
+                        System.out.println(" - Titulo: " + cortarTitulo(libro.getTitulo()));
+                    }
+                }else{
+                    System.out.println("Autor no tienen libros registrados");
+                }
+            }
+        }
+        if(!autoresEncontrados) System.out.println("Perido no registra datos");
+    }
+
+    private void buscarLibrosLenguaje() {
+        System.out.println("Ingrese el lenguaje que desea buscar");
+        String codigoLenguaje = scanner.nextLine().trim().toLowerCase();
+        if(codigoLenguaje.isEmpty()) System.out.println("Lenguaje no puede estar vacio");
+
+        try{
+            Lenguaje lenguaje = Lenguaje.desdeCodigo(codigoLenguaje);
+            List<Libros> libros = libroRepositorio.findByLenguaje(lenguaje);
+            if(libros.isEmpty()){
+                System.out.println("No se encontaron libros en el lenguaje: " + lenguaje);
+            }else{
+                libros.forEach(libro -> {
+                    Autor autor = libro.getAutor();
+                    System.out.println(
+                            "==============================================================================" + '\n' +
+                                    "Titulo           : " + libro.getTitulo() + '\n' +
+                                    "Autor            : " + (autor != null ? autor.getNombre() : "Desconocido" ) + '\n' +
+                                    "Idioma           : " + libro.getLenguaje() + '\n' +
+                                    "Numero descargas : " + libro.getContador_descargas());
+                });
+            }
+
+        }catch(IllegalArgumentException ex){
+            System.out.println("Codigo lenguaje no valido: " + codigoLenguaje);
+        }
+    }
+
+    private String cortarTitulo(String titulo){
+        String[] partes = titulo.split(":");
+        String tituloCorto = partes[0].trim();
+        return tituloCorto;
     }
 }
