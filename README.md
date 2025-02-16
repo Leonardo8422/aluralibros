@@ -1,3 +1,2 @@
 <h1 align="center"> Bibliotech </h1>
-
-![Retro](https://github.com/user-attachments/assets/fe396b53-6c02-4623-b259-9ab861fff04f)
+![Retro (1)](https://github.com/user-attachments/assets/c93da769-a6ba-467f-87be-8b5b07d6c045)
