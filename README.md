@@ -6,17 +6,13 @@
 ![Static Java](https://img.shields.io/badge/PostgreSQL-4169E1?style=flat&logo=postgresql&logoColor=white)
 ![Static Badge](https://img.shields.io/badge/Manven-v4.0.0-green)
 
-##Índice
+#Temas
 
-*[Título e imagen de portada](#Título-e-imagen-de-portada)
 
-*[Insignias](#insignias)
-
-*[Índice](#índice)
 
 *[Descripción del proyecto](#descripción-del-proyecto)
 
-*[Estado del proyecto](#Estado-del-proyecto)
+*[Funcionalidades](#Funcionalidades)
 
 *[Características de la aplicación y demostración](#Características-de-la-aplicación-y-demostración)
 
@@ -31,6 +27,14 @@
 * [Licencia](#licencia)
 
 *[Conclusión](#conclusión)
+
+Descripción del proyecto
+-------------------------
+Gestor de Libros es una aplicación desarrollada en Spring Boot, que utiliza una base de datos PostgreSQL y consume la API Gutendex para gestionar una base de datos de libros. La aplicación ofrece varios servicios para buscar y guardar libros, así como realizar consultas basadas en diferentes criterios.
+
+
+![Diseño sin título](https://github.com/user-attachments/assets/99b50f4e-49c1-4d03-9313-f727a962bff4)
+
 
 
 
