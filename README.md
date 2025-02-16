@@ -35,6 +35,16 @@ Gestor de Libros es una aplicación desarrollada en Spring Boot, que utiliza una
 
 ![Diseño sin título](https://github.com/user-attachments/assets/99b50f4e-49c1-4d03-9313-f727a962bff4)
 
+ Funcionalidades
+ ----------------
+>
+> - Búsqueda de libros y almacenamiento de datos en la base de datos.
+> - Consultas de libros por idioma.
+> - Consultas de libros por autores.
+> - Clasificación de autores vivos por año.
+>
+
+
 
 
 
